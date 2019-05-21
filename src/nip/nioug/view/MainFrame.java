@@ -34,7 +34,9 @@ public class MainFrame extends JFrame implements BackupInfos, ProgressListener
     
     private ArrayList<JComponent> selection = new ArrayList<>();
     private JTextField tfSource = new JTextField(50);    
-    private JTextField tfDestination = new JTextField(50);    
+    private MyButton bChooseSource = new MyButton("...");
+    private JTextField tfDestination = new JTextField(50);  
+    private MyButton bChooseDestination = new MyButton("...");
     private JTextField tfPrefix = new JTextField(6);  
     private JComboBox cbType = new JComboBox(TYPES);
     private JLabel lExample = new JLabel("ex: ####.JPG");    
@@ -45,6 +47,7 @@ public class MainFrame extends JFrame implements BackupInfos, ProgressListener
     private JScrollPane scrollDetail = new JScrollPane(taDetail);
     private JButton bDisplay = new JButton("Show detail");    
     
+    private final JFileChooser fc;
     
     private FilesHandler filesHandler;
 
@@ -55,28 +58,42 @@ public class MainFrame extends JFrame implements BackupInfos, ProgressListener
         this.setSize(500,500);      // (500,500) when processing
         this.setResizable(false);
         Container c = this.getContentPane();
-        c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
+        c.setLayout(null);
         c.setBackground(Color.WHITE);
         this.setDisplay(c);
+        fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     }
  
     
     private void setDisplay(Container c) {
         Border bordered = BorderFactory.createLineBorder(myBlue);
+        
         panel = new JPanel(null);
+        panel.setBounds(0, 0, 500, 500);
         panel.setBackground(Color.WHITE);
         
         tfSource.setBorder(BorderFactory.createTitledBorder(
                 bordered, "Source", 0, 0, null, Color.GRAY));
-        tfSource.setBounds(10, 5, 470, 40);
+        tfSource.setBounds(10, 5, 440, 40);
         panel.add(tfSource);
         selection.add(tfSource);
+        
+        bChooseSource.setBounds(455, 13, 30, 30);
+        bChooseSource.addActionListener(l -> fillTextField(tfSource));
+        panel.add(bChooseSource);
+        selection.add(bChooseSource);
      
         tfDestination.setBorder(BorderFactory.createTitledBorder(
                 bordered, "Destination", 0, 0, null, Color.GRAY));
-        tfDestination.setBounds(10, 50, 470, 40);
+        tfDestination.setBounds(10, 50, 440, 40);
         panel.add(tfDestination);
         selection.add(tfDestination);
+        
+        bChooseDestination.setBounds(455, 58, 30, 30);
+        bChooseDestination.addActionListener(l -> fillTextField(tfDestination));
+        panel.add(bChooseDestination);
+        selection.add(bChooseDestination);
 
         tfPrefix.setBorder(BorderFactory.createTitledBorder(
                 bordered, "Prefix", 0, 0, null, Color.GRAY));
@@ -107,27 +124,34 @@ public class MainFrame extends JFrame implements BackupInfos, ProgressListener
         panel.add(lExample);
         selection.add(lExample);
         
-        bStart.setBackground(myBlue);
-        bStart.setForeground(Color.WHITE);
-        bStart.setBounds(400, 95, 75, 40);
+        bStart.setBounds(400, 95, 85, 40);
         bStart.addActionListener(a -> performCopy());
         panel.add(bStart);
         selection.add(bStart);
         
-        pbProgress.setBounds(10, 145, 470, 25);
+        pbProgress.setBounds(10, 145, 475, 25);
         pbProgress.setStringPainted(true);
         pbProgress.setString("- / -");
         panel.add(pbProgress);
         
         
         taDetail.setEditable(false);
-        taDetail.setBounds(10, 180, 470, 280);
-        scrollDetail.setBounds(10, 180, 470, 280);
+        //taDetail.setBounds(10, 180, 475, 280);
+        scrollDetail.setBounds(10, 180, 475, 280);
         scrollDetail.setBackground(Color.WHITE);
         scrollDetail.setBorder(bordered);
         panel.add(scrollDetail);        
         
         c.add(panel);        
+    }
+    
+    
+    private void fillTextField(JTextField comp){
+        int returnVal = fc.showOpenDialog(MainFrame.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String file = fc.getSelectedFile().toPath().toString();
+            comp.setText(file);
+        }
     }
     
     

@@ -53,7 +53,13 @@ public class FilesHandler extends Thread implements Serializable, BackupInfos
 
         int total = countImages(source, regex);
         
-        if (total > 0) {
+        if (!Files.isDirectory(source))
+            this.fireAddMessage(ProgressMessageEvent.ERROR, 
+                    "\"" + source.getFileName() + "\" is not a valid directory");
+        else if (!Files.isDirectory(destination))
+            this.fireAddMessage(ProgressMessageEvent.ERROR, 
+                    "\"" + destination.getFileName() + "\" is not a valid directory");
+        else if (total > 0) {
             count = new ProgressCountEvent(0, total);
             duplicateFiles(source, regex);        
             this.fireAddMessage(ProgressMessageEvent.SUCCESS, "DONE");
@@ -119,26 +125,32 @@ public class FilesHandler extends Thread implements Serializable, BackupInfos
             
             if (date != null) 
             {
-                Path sub = this.createSubDirectory(destination, String.valueOf(date.get(Calendar.YEAR)));
-                sub = this.createSubDirectory(sub, String.format("%02d", date.get(Calendar.MONTH)+1));
+                Path sub = this.createSubDirectory(destination, 
+                                   String.valueOf(date.get(Calendar.YEAR)));
+                sub = this.createSubDirectory(sub, 
+                                   String.format("%02d", date.get(Calendar.MONTH)+1));
                 try {
                     copyFile(file, sub);   
-                    fireAddMessage(ProgressMessageEvent.SUCCESS, file.toString());
+                    fireAddMessage(ProgressMessageEvent.SUCCESS, 
+                            file.getFileName().toString());
                     return true;
                 } catch (FileAlreadyExistsException ex) {
-                    fireAddMessage(ProgressMessageEvent.SUCCESS, file.toString() + " already exists");
+                    fireAddMessage(ProgressMessageEvent.SUCCESS, 
+                            file.getFileName().toString() + " already exists");
                     return true;
                 } catch (IOException ex) {
                     return false;
                 }
             }
             else {
-                fireAddMessage(ProgressMessageEvent.ERROR, "no date found for " + file.toString());
+                fireAddMessage(ProgressMessageEvent.ERROR, 
+                        "no date found for: " + file.getFileName().toString());
                 return false;
             }
         }
         else {
-            fireAddMessage(ProgressMessageEvent.ERROR, "no metadata found for " + file.toString());
+            fireAddMessage(ProgressMessageEvent.ERROR, 
+                    "no metadata found for " + file.getFileName().toString());
             return false;
         }
     }
@@ -167,14 +179,14 @@ public class FilesHandler extends Thread implements Serializable, BackupInfos
         }
     }
     
-    public void copyFile(Path src, Path dest) throws IOException, FileAlreadyExistsException
+    public void copyFile(Path src, Path dest) 
+            throws IOException, FileAlreadyExistsException
     {
         Files.copy(src, dest.resolve(src.getFileName()));        
     }
     
     
     public int countImages(Path src, String regex) {
-        //Path dir = Paths.get(path);
         int tot = 0;
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(src)) {
             for (Path file: stream) {
@@ -192,11 +204,6 @@ public class FilesHandler extends Thread implements Serializable, BackupInfos
         }
         
         return tot;
-    }
-    
-    
-    private boolean inception(Path source, Path destination) {
-        return false;
     }
     
     

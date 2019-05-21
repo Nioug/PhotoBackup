@@ -16,17 +16,27 @@ public class MyButton extends JButton {
     private final Color myBlue = new Color(60,120,150);
     private final Color disabled = new Color(180,180,180);
     
+    private final Color defaultColor;
     
     public MyButton(String title) {
         super(title);
-        
+        this.setBackground(myBlue);
+        this.setForeground(Color.WHITE);    
+        defaultColor = myBlue;
+    }
+    
+    public MyButton(String title, Color color) {
+        super(title);
+        this.setBackground(myBlue);
+        this.setForeground(Color.WHITE);    
+        defaultColor = color;
     }
     
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         if (enabled){
-            super.setBackground(myBlue);
+            super.setBackground(defaultColor);
         }
         else {
             super.setBackground(disabled);
